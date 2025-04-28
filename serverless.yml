@@ -1,0 +1,25 @@
+service: backend-api
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  environment:
+    JWT_SECRET: ${env:JWT_SECRET}
+    DATABASE_URL: ${env:DATABASE_URL}
+    AWS_S3_BUCKET: ${env:AWS_BUCKET_NAME}
+    AWS_REGION_L: ${env:AWS_REGION_L}
+  # useDotenv: true
+  # variablesResolutionMode: 20210326
+
+functions:
+  app:
+    handler: src/lambda.handler
+    events:
+      - httpApi: "*"
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
