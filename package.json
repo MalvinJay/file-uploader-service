@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "tsc",
+    "build": "prisma generate --binary-targets=rhel-openssl-3.0.x && tsc",
     "start": "node build/app.js",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:generate": "prisma generate"
@@ -13,23 +13,24 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.921.0",
     "@prisma/client": "^5.2.0",
-    "aws-sdk": "^2.1372.0",
-    "aws-serverless-express": "^3.4.0",
-    "bcrypt": "^5.1.0",
+    "@vendia/serverless-express": "^4.12.6",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
-    "prisma": "^5.2.0"
+    "prisma": "^5.2.0",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@types/aws-serverless-express": "^3.3.10",
-    "@types/bcrypt": "^5.0.2",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.15.2",
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.9.2",
     "@types/uuid": "^10.0.0",
     "serverless-dotenv-plugin": "^6.0.0",
     "serverless-offline": "^14.4.0",

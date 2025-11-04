@@ -5,7 +5,9 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     try {
         const { email, password } = req.body;
         const token = await AuthService.register(email, password);
-        res.status(201).json({ token })
+        res.status(201).json({
+            message: 'User Created Successfully. Login with credentials'
+        })
     } catch (err) {
         next(err);
     }

@@ -2,6 +2,8 @@ import prisma from '../prisma/client';
 import { s3 } from "../utils/s3";
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv'
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+
 dotenv.config();
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME!;
@@ -10,12 +12,21 @@ export const upload = async (file: string, filename: string, userId: number) => 
     try {
         const { dbRecordFile, url }: any = await prisma.$transaction(async (tx: any) => {
             const key = `${uuidv4()}-${filename}`;
-            await s3.putObject({
-                Bucket: BUCKET_NAME,
-                Key: key,
-                Body: Buffer.from(file, 'base64'),
-                ContentType: 'application/octet-stream'
-            }).promise();
+            // await s3.putObject({
+            //     Bucket: BUCKET_NAME,
+            //     Key: key,
+            //     Body: Buffer.from(file, 'base64'),
+            //     ContentType: 'application/octet-stream'
+            // }).promise();
+
+            await s3.send(
+                new PutObjectCommand({
+                    Bucket: BUCKET_NAME,
+                    Key: key,
+                    Body: Buffer.from(file, 'base64'),
+                    ContentType: 'application/octet-stream'
+                })
+            )
 
             const url = `https://${BUCKET_NAME}.s3.amazonaws.com/${key}`
 
@@ -47,10 +58,17 @@ export const deleteFile = async (id: number, userId: number) => {
             if (!file || file.userId !== userId) throw new Error("File does not exist");
 
             // Delete on s3
-            await s3.deleteObject({
-                Bucket: BUCKET_NAME,
-                Key: file.key
-            }).promise()
+            // await s3.deleteObject({
+            //     Bucket: BUCKET_NAME,
+            //     Key: file.key
+            // }).promise()
+
+            await s3.send(
+                new DeleteObjectCommand({
+                    Bucket: BUCKET_NAME,
+                    Key: file.key
+                })
+            );
 
             // Delete on db
             await prisma.file.delete({ where: { id } })

@@ -1,4 +1,4 @@
-import bycrypt from 'bcrypt';
+import bycrypt from 'bcryptjs';
 import prisma from '../prisma/client';
 import { signToken } from '../utils/jwt';
 

@@ -1,25 +1,48 @@
 service: backend-api
 
-frameworkVersion: "3"
+frameworkVersion: "4"
 
 provider:
   name: aws
   runtime: nodejs20.x
   region: us-east-1
+  stage: dev
+
   environment:
     JWT_SECRET: ${env:JWT_SECRET}
     DATABASE_URL: ${env:DATABASE_URL}
     AWS_S3_BUCKET: ${env:AWS_BUCKET_NAME}
     AWS_REGION_L: ${env:AWS_REGION_L}
-  # useDotenv: true
-  # variablesResolutionMode: 20210326
 
 functions:
   app:
-    handler: src/lambda.handler
+    handler: index.handler
     events:
       - httpApi: "*"
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-offline
+
+package:
+  patterns:
+    - "!node_modules/.prisma/client/query_engine-*" # clean up unused binaries
+    - "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node" # ✅ include correct binary
+    - "node_modules/@prisma/client/schema.prisma"
+    - "node_modules/.prisma/client/schema.prisma"
+    - "!node_modules/.prisma/client/libquery_engine-windows*"
+
+build:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: false
+    target: node20
+    platform: node
+    exclude:
+      - "@mapbox/node-pre-gyp"
+      - "mock-aws-s3"
+    external:
+      - "@mapbox/node-pre-gyp"
+      - "mock-aws-s3"
+    loader:
+      ".html": "text"
