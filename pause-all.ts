@@ -13,14 +13,15 @@ import { ApiGatewayV2Client, DeleteApiCommand, GetApisCommand } from "@aws-sdk/c
 import { S3Client, ListBucketsCommand, PutBucketLifecycleConfigurationCommand } from "@aws-sdk/client-s3";
 // import { DynamoDBClient, ListTablesCommand, UpdateTableCommand } from "@aws-sdk/client-dynamodb";
 import { CloudWatchLogsClient, DescribeLogGroupsCommand, DeleteLogGroupCommand } from "@aws-sdk/client-cloudwatch-logs";
+import { ConfigServiceClient, StopConfigurationRecorderCommand, DescribeConfigurationRecordersCommand } from "@aws-sdk/client-config-service";
 
 const REGION = process.env.AWS_REGION || "us-east-1";
-
 const lambda = new LambdaClient({ region: REGION });
 const apiGateway = new ApiGatewayV2Client({ region: REGION });
 const s3 = new S3Client({ region: REGION });
 // const dynamo = new DynamoDBClient({ region: REGION });
 const logs = new CloudWatchLogsClient({ region: REGION });
+const config = new ConfigServiceClient({ region: REGION });
 
 (async () => {
     console.log("🔸 Starting AWS pause-all cleanup...");
@@ -88,6 +89,13 @@ const logs = new CloudWatchLogsClient({ region: REGION });
             console.log(`🗑️  Deleting log group: ${group.logGroupName}`);
             await logs.send(new DeleteLogGroupCommand({ logGroupName: group.logGroupName }));
         }
+    }
+
+    /** AWS Config */
+    const recorders = await config.send(new DescribeConfigurationRecordersCommand({}));
+    for (const recorder of recorders.ConfigurationRecorders || []) {
+        console.log(`🛑 Stopping AWS Config recorder: ${recorder.name}`);
+        await config.send(new StopConfigurationRecorderCommand({ ConfigurationRecorderName: recorder.name }));
     }
 
     console.log("✅ AWS pause-all cleanup complete!");
