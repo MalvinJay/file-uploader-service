@@ -6,7 +6,9 @@
     "build": "prisma generate --binary-targets=rhel-openssl-3.0.x && tsc",
     "start": "node build/app.js",
     "prisma:migrate": "prisma migrate dev --name init",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "pause-all": "npx tsx pause-all.ts",
+    "resume": "npx serverless deploy"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +27,8 @@
     "serverless-http": "^4.0.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-apigatewayv2": "^3.922.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.922.0",
     "@types/aws-serverless-express": "^3.3.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
